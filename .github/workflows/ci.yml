@@ -32,16 +32,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Fazer o checkout do código
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Set up Node.js
+      # 2. Configurar Node.js e Yarn
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "16"
+          node-version: 16
+          cache: "yarn"
 
+      # 3. Instalar dependências
       - name: Install dependencies
         run: yarn install
 
+      #4. Fazer checkout do Lint
       - name: Run ESLint
         run: yarn lint
