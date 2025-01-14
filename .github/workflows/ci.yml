@@ -1,0 +1,30 @@
+name: React CI Pipeline
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+jobs:
+ # Instala dependências e faz o build do projeto.
+  install-and-build:
+    name: Install and Build
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Fazer o checkout do código
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Configurar Node.js e Yarn
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'yarn'
+
+      # 3. Instalar dependências
+      - name: Install dependencies
+        run: yarn install
+
+      # 4. Fazer o build do projeto
+      - name: Build project
+        run: yarn build
