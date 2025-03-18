@@ -76,7 +76,16 @@ jobs:
       - name: Run tests with coverage
         run: yarn test --ci --silent --coverage
 
-      # 5. Enviar relatório de cobertura para o Codecov
+      # 5. Verificar se o relatório de cobertura foi gerado
+      - name: Check coverage report
+        run: |
+          if [ ! -d "coverage" ]; then
+            echo "Erro: Relatório de cobertura não foi gerado."
+            exit 1
+          fi
+          echo "Relatório de cobertura gerado com sucesso."
+
+      # 6. Enviar relatório de cobertura para o Codecov
       - name: Upload coverage to Codecov
         run: yarn coverage
         env:
