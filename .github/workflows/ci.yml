@@ -34,8 +34,8 @@ jobs:
         id: install-deps
         run: yarn install
 
-  install-and-build:
-    name: Install and Build
+  lint:
+    name: Run Lint
     needs: setup
     runs-on: ubuntu-latest
     steps:
@@ -52,9 +52,9 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      # 4. Fazer o build do projeto
-      - name: Build project
-        run: yarn build
+      # 4. Rodar o ESLint
+      - name: Run ESLint
+        run: yarn lint
 
   test:
     name: Run Tests
@@ -93,13 +93,12 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-  # Job para rodar o Lint
-  lint:
-    name: Run Lint
+  security:
+    name: Security Check
     needs: setup
     runs-on: ubuntu-latest
     steps:
-      # Reutiliza o checkout do código e a instalação de dependências
+      # Checkout do código e a instalação de dependências
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -112,6 +111,55 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      # 4. Rodar o ESLint
-      - name: Run ESLint
-        run: yarn lint
+      # 4. Verificar vulnerabilidades de segurança
+      - name: Run security audit
+        run: yarn audit
+
+  build:
+    name: Build Project
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout do código e a instalação de dependências
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js and Yarn
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install
+
+      # 4. Fazer o build do projeto
+      - name: Build project
+        run: yarn build
+
+  deploy:
+    name: Deploy Project
+    needs: [lint, test, security, build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    steps:
+      # Checkout do código e a instalação de dependências
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js and Yarn
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install
+
+      # 4. Fazer o build do projeto
+      - name: Build project
+        run: yarn build
+
+      # 5. Deploy (substitua pelo seu processo de deploy)
+      - name: Deploy to Production
+        run: echo "Deploying to production..."
