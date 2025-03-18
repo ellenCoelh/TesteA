@@ -90,14 +90,15 @@ jobs:
       - name: Extract coverage percentage
         id: coverage
         run: |
+
           # Verifica se o arquivo index.html existe
           if [ ! -f "coverage/lcov-report/index.html" ]; then
             echo "Erro: Arquivo coverage/lcov-report/index.html não encontrado."
             exit 1
           fi
 
-          # Extrai o percentual de cobertura
-          COVERAGE=$(grep -oP '([0-9.]+)(?=%</span>)' coverage/lcov-report/index.html | head -1)
+          # Extrai o percentual de cobertura total
+          COVERAGE=$(grep -oP '(?<=<span class="strong">)[0-9.]+(?=%</span>)' coverage/lcov-report/index.html | head -1)
           if [ -z "$COVERAGE" ]; then
             echo "Erro: Não foi possível extrair o percentual de cobertura."
             echo "Conteúdo do arquivo index.html:"
