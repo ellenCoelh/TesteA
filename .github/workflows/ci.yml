@@ -59,7 +59,7 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     steps:
-      #Checkout do código e a instalação de dependências
+      # Checkout do código e a instalação de dependências
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -72,9 +72,15 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      # 4. Rodar os testes (assumindo que o comando é 'yarn test' para os testes)
-      - name: Run tests
+      # 4. Rodar os testes com cobertura
+      - name: Run tests with coverage
         run: yarn test --ci --silent --coverage
+
+      # 5. Enviar relatório de cobertura para o Codecov
+      - name: Upload coverage to Codecov
+        run: yarn coverage
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   # Job para rodar o Lint
   lint:
