@@ -90,7 +90,7 @@ jobs:
       - name: Extract coverage percentage
         id: coverage
         run: |
-          COVERAGE=$(grep -oP '(?<=All files[[:space:]]+)[0-9.]+(?=%[[:space:]]+\|[[:space:]]+[0-9.]+%[[:space:]]+\|[[:space:]]+[0-9.]+%[[:space:]]+\|[[:space:]]+[0-9.]+%)' coverage/lcov-report/index.html)
+          COVERAGE=$(awk -F'[><]' '/<tfoot>/,/<\/tfoot>/ {if ($2 ~ /All files/) {print $5}}' coverage/lcov-report/index.html | grep -oP '\d+\.\d+')
           echo "Cobertura atual: $COVERAGE%"
           echo "coverage_percentage=$COVERAGE" >> $GITHUB_OUTPUT
 
