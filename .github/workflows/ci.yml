@@ -86,11 +86,48 @@ jobs:
           fi
           echo "Relatório de cobertura gerado com sucesso."
 
-      # 6. Enviar relatório de cobertura para o Codecov
+      # 6. Extrair o percentual de cobertura
+      - name: Extract coverage percentage
+        id: coverage
+        run: |
+          COVERAGE=$(grep -oP '(?<=All files[[:space:]]+)[0-9.]+(?=%[[:space:]]+\|[[:space:]]+[0-9.]+%[[:space:]]+\|[[:space:]]+[0-9.]+%[[:space:]]+\|[[:space:]]+[0-9.]+%)' coverage/lcov-report/index.html)
+          echo "Cobertura atual: $COVERAGE%"
+          echo "coverage_percentage=$COVERAGE" >> $GITHUB_OUTPUT
+
+      # 7. Enviar relatório de cobertura para o Codecov
       - name: Upload coverage to Codecov
         run: yarn coverage
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      # 8. Postar o percentual de cobertura no pull request
+      - name: Post coverage comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existingComment = comments.find(comment => comment.body.includes("Cobertura de Código"));
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: `✅ Cobertura de Código: ${{ steps.coverage.outputs.coverage_percentage }}%`
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: `✅ Cobertura de Código: ${{ steps.coverage.outputs.coverage_percentage }}%`
+              });
+            }
 
   security:
     name: Security Check
